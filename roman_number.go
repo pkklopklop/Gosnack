@@ -26,8 +26,8 @@ func main() {
 
 	inputStr := strconv.Itoa(input)
 
-	if input > 1000 {
-		fmt.Println("Error 1: input > 1000")
+	if input > 1000 || input < 1 {
+		fmt.Println("Error 1: input > 1000 OR input < 1.")
 		os.Exit(3)
 	} else if input == 1000 {
 		fmt.Println("Result : M")
