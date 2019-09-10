@@ -41,7 +41,7 @@ func postTodo(c *gin.Context) {
 	err := c.ShouldBindJSON(&t)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "JSON parsing on insertion error!!! " + err.Error()})
 		return
 	}
 
@@ -50,14 +50,14 @@ func postTodo(c *gin.Context) {
 	err = row.Scan(&id)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Insertion error!!! " + err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"status": "OK"})
 }
 
-func getAllTodos(c *gin.Context) {
+func getContainTodo(c *gin.Context) {
 
 	titleQ := c.Query("title")
 
@@ -68,14 +68,14 @@ func getAllTodos(c *gin.Context) {
 	stmt, err := db.Prepare("SELECT id, title, status FROM todos where title like $1")
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Prepare SQL for selection error!!! " + err.Error()})
 		return
 	}
 
 	rows, err := stmt.Query("%" + titleQ + "%")
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Query to select row error!!! " + err.Error()})
 		return
 	}
 
@@ -83,7 +83,7 @@ func getAllTodos(c *gin.Context) {
 		err := rows.Scan(&todosLocal.ID, &todosLocal.Title, &todosLocal.Status)
 		if err != nil {
 			log.Println(err)
-			c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+			c.JSON(http.StatusBadRequest, gin.H{"status": "Fetch next row error!!! " + err.Error()})
 			return
 		}
 		todos = append(todos, todosLocal)
@@ -106,14 +106,14 @@ func getOneTodo(c *gin.Context) {
 	stmt, err := db.Prepare("SELECT id, title, status FROM todos WHERE id = $1")
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "prepare SQL select error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Prepare SQL select error!!! " + err.Error()})
 		return
 	}
 
 	idnum, err := strconv.Atoi(id)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "Convert id to num error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Convert id to num error!!!" + err.Error()})
 		return
 	}
 
@@ -139,14 +139,14 @@ func deleteTodo(c *gin.Context) {
 	stmt, err := db.Prepare("SELECT id, title, status FROM todos WHERE id = $1")
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "prepare SQL select error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Prepare SQL select error!!! " + err.Error()})
 		return
 	}
 
 	idnum, err := strconv.Atoi(id)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "Convert id to num error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Convert id to num error!!!" + err.Error()})
 		return
 	}
 
@@ -164,14 +164,14 @@ func deleteTodo(c *gin.Context) {
 	stmt, err = db.Prepare("DELETE FROM todos WHERE id = $1")
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Prepare SQL for delete row error!!! " + err.Error()})
 		return
 	}
 
 	_, err = stmt.Exec(idnum)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Execute deletion error!!! " + err.Error()})
 		return
 	}
 
@@ -187,14 +187,14 @@ func updateTodo(c *gin.Context) {
 	stmt, err := db.Prepare("SELECT id, title, status FROM todos WHERE id = $1")
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "prepare SQL select error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Prepare SQL select error!!! " + err.Error()})
 		return
 	}
 
 	idnum, err := strconv.Atoi(id)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "Convert id to num error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Convert id to num error!!! " + err.Error()})
 		return
 	}
 
@@ -214,21 +214,21 @@ func updateTodo(c *gin.Context) {
 	err = c.ShouldBindJSON(&t)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "Error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "JSON parsing Error!!! " + err.Error()})
 		return
 	}
 
 	stmt, err = db.Prepare("UPDATE todos SET title=$2,status=$3 WHERE id=$1")
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Prepare SQL for update error!!! " + err.Error()})
 		return
 	}
 
 	_, err = stmt.Exec(id, t.Title, t.Status)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error!!!"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "Execute update error!!! " + err.Error()})
 		return
 	}
 
@@ -242,7 +242,7 @@ func main() {
 
 	r.Use(authMiddleware)
 
-	r.GET("/getcontain", getAllTodos)
+	r.GET("/getcontain", getContainTodo)
 
 	r.GET("getone/:id", getOneTodo)
 
