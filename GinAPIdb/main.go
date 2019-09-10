@@ -257,12 +257,6 @@ func main() {
 	defer db.Close()
 }
 
-func remove(s []Todo, i int) []Todo {
-	s[i] = s[len(s)-1]
-	// We do not need to put s[i] at the end, as it will be discarded anyway
-	return s[:len(s)-1]
-}
-
 func createTable() {
 	var err error
 	db, err = sql.Open("postgres", os.Getenv("DATABASE_URL"))
